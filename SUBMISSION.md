@@ -45,7 +45,7 @@ I worked in small commits, one bug or one task each, so the history shows how I 
 
 - `POST` instead of `PATCH`. The request does not change anything on the server; it sends a table and gets a file back.
 - The CSV is written line by line straight to the response, so the file is never built up in memory as a second copy of the table.
-- Rows are checked in a plain loop instead of Laravel's validator, which copies the data it checks.
+- I check the rows in a plain loop instead of Laravel's validator, because the validator copies the data it checks. There is a test for this: 100,000 rows have to export under PHP's default 128 MB limit. With the validator the same test used about 138 MB.
 - Laravel trims input and turns empty text into null by default. I switched that off for the export route, so the file matches the table exactly.
 - The file starts with a UTF-8 byte order mark, so Excel shows accents and symbols correctly.
 - The Export button ignores a second click while an export is running, and a message is shown if the export fails.

@@ -90,6 +90,21 @@ class CSVExportTest extends TestCase
         ]);
     }
 
+    public function test_it_exports_100_000_rows_within_the_default_memory_limit(): void
+    {
+        $rows = array_fill(0, 100_000, ['Riverside', 'North & Co', 'Phase 1', 'Open', 'Review, then approve']);
+
+        memory_reset_peak_usage();
+
+        $response = $this->export(['project', 'contractor', 'notes', 'status', 'owner'], $rows);
+
+        $response->assertOk();
+        $this->assertSame(100_001, substr_count($response->streamedContent(), "\r\n"));
+
+        // PHP's default memory limit. Sending the rows through Laravel's validator goes over it.
+        $this->assertLessThan(128 * 1024 * 1024, memory_get_peak_usage());
+    }
+
     public function test_it_rejects_a_column_without_a_heading(): void
     {
         $response = $this->export(
