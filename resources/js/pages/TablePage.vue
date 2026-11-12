@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 
 interface Column {
+    id: string;
     key: string;
 }
 
@@ -15,9 +16,9 @@ const data = ref<Row[]>([
 ]);
 
 const columns = ref<Column[]>([
-    { key: 'project' },
-    { key: 'contractor' },
-    { key: 'notes' },
+    { id: 'project', key: 'project' },
+    { id: 'contractor', key: 'contractor' },
+    { id: 'notes', key: 'notes' },
 ]);
 
 const addRow = () => {
@@ -80,7 +81,7 @@ const submit = () => {
                             <tr>
                                 <th
                                     v-for="column in columns"
-                                    :key="column.key"
+                                    :key="column.id"
                                     class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                                 >
                                     <input
