@@ -17,6 +17,10 @@ I worked in small commits, one bug or one task each, so the history shows how I 
 2. Add the missing actions and the CSV export (`feat:` commits).
 3. Once the core worked, clean up and separate concerns (`refactor:` commits).
 
+🫠 I know I added a few extra things on top because I was frustrated with the idea of not finishing it. They're just extras, so they can be evaluated separately from the core work :))
+
+‼️ The third column in the initial table has no heading on purpose, to test the input validation error.
+
 ## Bugs fixed
 
 - Typing in a column heading lost focus after every character. The heading text was used as the Vue key, so I gave each column a stable id.
