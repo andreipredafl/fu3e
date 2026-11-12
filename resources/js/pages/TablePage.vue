@@ -4,7 +4,7 @@ import axios from 'axios';
 
 interface Column {
     id: string;
-    key: string;
+    label: string;
 }
 
 type Row = Record<string, string>;
@@ -16,9 +16,9 @@ const data = ref<Row[]>([
 ]);
 
 const columns = ref<Column[]>([
-    { id: 'project', key: 'project' },
-    { id: 'contractor', key: 'contractor' },
-    { id: 'notes', key: 'notes' },
+    { id: 'project', label: 'project' },
+    { id: 'contractor', label: 'contractor' },
+    { id: 'notes', label: 'notes' },
 ]);
 
 const addRow = () => {
@@ -33,21 +33,9 @@ const addColumn = () => {
     // Add new column to the dataset
 };
 
-const updateColumnKey = (column: Column, event: Event) => {
-    const target = event.target as HTMLInputElement;
-
-    const columnKeyExists = !!columns.value.find((item) => item.key === target.value);
-
-    column.key = target.value;
-
-    if (columnKeyExists) {
-        column.key = target.value.substring(0, target.value.length - 1);
-    }
-};
-
 const submit = () => {
     return axios.patch('/api/csv-export', {
-        headings: columns.value.map((column) => column.key),
+        headings: columns.value.map((column) => column.label),
         rows: data.value.map((row) => columns.value.map((column) => row[column.id] ?? '')),
     });
 };
@@ -78,10 +66,9 @@ const submit = () => {
                                     class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                                 >
                                     <input
+                                        v-model="column.label"
                                         type="text"
                                         class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                        :value="column.key"
-                                        @input="updateColumnKey(column, $event)"
                                     />
                                 </th>
                             </tr>
