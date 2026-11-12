@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, useTemplateRef } from 'vue';
 import axios from 'axios';
-import RemoveButton from '../components/RemoveButton.vue';
+import Button from '../components/ui/Button.vue';
 import { downloadFile } from '../utils/downloadFile';
 
 interface Column {
@@ -57,7 +57,6 @@ const addColumn = async () => {
 };
 
 const removeColumn = (columnIndex: number) => {
-
     if (columns.value.length === 1) {
         return;
     }
@@ -110,7 +109,7 @@ const submit = async () => {
             </div>
 
             <div class="px-6 py-6">
-                <div ref="tableScroller" class="overflow-x-auto">
+                <div ref="tableScroller" class="overflow-x-auto scroll-pr-19">
                     <table class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-slate-50">
                             <tr>
@@ -119,7 +118,7 @@ const submit = async () => {
                                     :key="column.id"
                                     class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                                 >
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-1">
                                         <input
                                             v-model="column.label"
                                             type="text"
@@ -127,11 +126,14 @@ const submit = async () => {
                                             :aria-label="`Heading for column ${columnIndex + 1}`"
                                             class="w-full min-w-24 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                                         />
-                                        <RemoveButton
-                                            :label="`Remove column ${columnIndex + 1}`"
+                                        <Button
+                                            variant="danger"
+                                            :aria-label="`Remove column ${columnIndex + 1}`"
                                             :disabled="columns.length === 1"
                                             @click="removeColumn(columnIndex)"
-                                        />
+                                        >
+                                            &times;
+                                        </Button>
                                     </div>
                                 </th>
                                 <th class="sticky right-0 bg-slate-50 px-4 py-3">
@@ -158,10 +160,13 @@ const submit = async () => {
                                     />
                                 </td>
                                 <td class="sticky right-0 bg-white px-4 py-3 text-right">
-                                    <RemoveButton
-                                        :label="`Remove row ${rowIndex + 1}`"
+                                    <Button
+                                        variant="danger"
+                                        :aria-label="`Remove row ${rowIndex + 1}`"
                                         @click="removeRow(rowIndex)"
-                                    />
+                                    >
+                                        &times;
+                                    </Button>
                                 </td>
                             </tr>
                         </tbody>
@@ -169,35 +174,17 @@ const submit = async () => {
                 </div>
 
                 <div class="mt-6 flex gap-3">
-                    <button
-                        type="button"
-                        class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2"
-                        @click="addColumn"
-                    >
-                        Add Column
-                    </button>
-                    <button
-                        type="button"
-                        class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2"
-                        @click="addRow"
-                    >
-                        Add Row
-                    </button>
+                    <Button variant="secondary" @click="addColumn">Add Column</Button>
+                    <Button variant="secondary" @click="addRow">Add Row</Button>
                 </div>
             </div>
 
             <div class="flex items-center justify-end gap-4 border-t border-slate-200 px-6 py-4">
+                <p role="status" class="sr-only">{{ isExporting ? 'Exporting the table…' : '' }}</p>
                 <p v-if="exportError" role="alert" class="text-sm text-red-600">
                     {{ exportError }}
                 </p>
-                <button
-                    type="button"
-                    class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    :disabled="isExporting"
-                    @click="submit"
-                >
-                    {{ isExporting ? 'Exporting…' : 'Export' }}
-                </button>
+                <Button variant="primary" :is-loading="isExporting" @click="submit">Export</Button>
             </div>
         </div>
     </section>
