@@ -2,6 +2,7 @@
 import { nextTick, ref, useTemplateRef } from 'vue';
 import axios from 'axios';
 import Button from '../components/ui/Button.vue';
+import Input from '../components/ui/Input.vue';
 import { downloadFile } from '../utils/downloadFile';
 
 interface Column {
@@ -119,12 +120,11 @@ const submit = async () => {
                                     class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                                 >
                                     <div class="flex items-center gap-1">
-                                        <input
+                                        <Input
                                             v-model="column.label"
-                                            type="text"
                                             placeholder="Heading"
                                             :aria-label="`Heading for column ${columnIndex + 1}`"
-                                            class="w-full min-w-24 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                            class="min-w-24"
                                         />
                                         <Button
                                             variant="danger"
@@ -152,11 +152,10 @@ const submit = async () => {
                                     :key="column.id"
                                     class="px-4 py-3"
                                 >
-                                    <input
+                                    <Input
                                         v-model="row.cells[column.id]"
-                                        type="text"
                                         :aria-label="`Row ${rowIndex + 1}, column ${columnIndex + 1}`"
-                                        class="w-full min-w-24 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        class="min-w-24"
                                     />
                                 </td>
                                 <td class="sticky right-0 bg-white px-4 py-3 text-right">
