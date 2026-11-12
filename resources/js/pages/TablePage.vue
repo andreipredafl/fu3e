@@ -35,7 +35,6 @@ const addColumn = () => {
 
 const updateColumnKey = (column: Column, event: Event) => {
     const target = event.target as HTMLInputElement;
-    const oldKey = column.key;
 
     const columnKeyExists = !!columns.value.find((item) => item.key === target.value);
 
@@ -43,15 +42,7 @@ const updateColumnKey = (column: Column, event: Event) => {
 
     if (columnKeyExists) {
         column.key = target.value.substring(0, target.value.length - 1);
-        return;
     }
-
-    data.value.forEach((row) => {
-        if (row[oldKey]) {
-            row[column.key] = row[oldKey];
-            delete row[oldKey];
-        }
-    });
 };
 
 const submit = () => {
@@ -100,12 +91,12 @@ const submit = () => {
                                 class="bg-white text-sm text-slate-700"
                             >
                                 <td
-                                    v-for="(dataColumn, columnName) in row"
-                                    :key="columnName"
+                                    v-for="column in columns"
+                                    :key="column.id"
                                     class="px-4 py-3"
                                 >
                                     <input
-                                        v-model="row[columnName]"
+                                        v-model="row[column.id]"
                                         type="text"
                                         class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                                     />
