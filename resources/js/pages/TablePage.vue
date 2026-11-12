@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, useTemplateRef } from 'vue';
 import axios from 'axios';
+import { downloadFile } from '../utils/downloadFile';
 
 interface Column {
     id: string;
@@ -54,11 +55,29 @@ const addColumn = async () => {
     tableScroller.value?.scrollTo({ left: tableScroller.value.scrollWidth });
 };
 
-const submit = () => {
-    return axios.post('/api/csv-export', {
-        headings: columns.value.map((column) => column.label),
-        rows: data.value.map((row) => columns.value.map((column) => row.cells[column.id])),
-    });
+const isExporting = ref(false);
+const exportError = ref('');
+
+const submit = async () => {
+    isExporting.value = true;
+    exportError.value = '';
+
+    try {
+        const response = await axios.post(
+            '/api/csv-export',
+            {
+                headings: columns.value.map((column) => column.label),
+                rows: data.value.map((row) => columns.value.map((column) => row.cells[column.id])),
+            },
+            { responseType: 'blob' },
+        );
+
+        downloadFile(response.data, 'project-register.csv');
+    } catch {
+        exportError.value = 'The export failed. Please try again.';
+    } finally {
+        isExporting.value = false;
+    }
 };
 </script>
 
@@ -151,13 +170,17 @@ const submit = () => {
                 </div>
             </div>
 
-            <div class="flex justify-end border-t border-slate-200 px-6 py-4">
+            <div class="flex items-center justify-end gap-4 border-t border-slate-200 px-6 py-4">
+                <p v-if="exportError" role="alert" class="text-sm text-red-600">
+                    {{ exportError }}
+                </p>
                 <button
                     type="button"
-                    class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2"
-                    @click="submit()"
+                    class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    :disabled="isExporting"
+                    @click="submit"
                 >
-                    Export
+                    {{ isExporting ? 'Exporting…' : 'Export' }}
                 </button>
             </div>
         </div>
