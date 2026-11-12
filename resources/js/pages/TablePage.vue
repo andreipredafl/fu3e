@@ -55,7 +55,7 @@ const addColumn = async () => {
 };
 
 const submit = () => {
-    return axios.patch('/api/csv-export', {
+    return axios.post('/api/csv-export', {
         headings: columns.value.map((column) => column.label),
         rows: data.value.map((row) => columns.value.map((column) => row.cells[column.id])),
     });
