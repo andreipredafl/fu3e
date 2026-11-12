@@ -60,12 +60,22 @@ Setup is unchanged: `composer run setup`, then `composer run dev`, and open http
 
 ## Unfinished and assumptions
 
-- Nothing is saved. A refresh brings back the starting table, as the brief does not ask for saving.
 - Cells that start with `=`, `+`, `-` or `@` are exported as typed. Excel may read them as formulas; I left them so the file matches the table.
 - There is no limit on the number of rows or columns; the practical limit is PHP's request size (8 MB by default).
 - After removing a row or a column with the keyboard, focus is lost and the user has to tab back to the table.
 - A table with one column and an empty cell is written as a blank line, which some CSV readers skip.
+- Nothing is saved. A refresh brings back the starting table, as the brief does not ask for saving.
 - The `label` option of `Input` is not used on this page yet.
+
+## What I would add in a real project
+
+These are out of scope for this challenge, but this is what I would do next:
+
+- For a more complex version, with Excel files or with import as well as export, I would look at a package like [Laravel Excel](https://laravel-excel.com/), depending on the needs, and run the work on queues with Horizon or something similar.
+- I would use more of what Vue 3 offers, like composables, and add tests for the front-end code (there are none here). I would also improve the UI and UX, the error handling and the validation.
+- For the interface I would use a UI library like shadcn-vue and an icon library, and add more reusable components, for example for cards and for grid and flex layouts.
+- I would add ESLint and Prettier for the front end, next to Pint for PHP, and a CI/CD pipeline that runs the tests, the type check and the formatters on every push. The pipeline could also have an AI step that reviews the changes.
+- I would add a `CLAUDE.md`, or a similar set of rules for the AI, and a few agents and skills for the tasks that repeat. I did not create one here because the starter code was broken at the beginning.
 
 ## AI tools
 
