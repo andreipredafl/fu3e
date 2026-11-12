@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, useTemplateRef } from 'vue';
 import axios from 'axios';
+import RemoveButton from '../components/RemoveButton.vue';
 import { downloadFile } from '../utils/downloadFile';
 
 interface Column {
@@ -55,6 +56,19 @@ const addColumn = async () => {
     tableScroller.value?.scrollTo({ left: tableScroller.value.scrollWidth });
 };
 
+const removeColumn = (columnIndex: number) => {
+
+    if (columns.value.length === 1) {
+        return;
+    }
+
+    const [column] = columns.value.splice(columnIndex, 1);
+
+    data.value.forEach((row) => {
+        delete row.cells[column.id];
+    });
+};
+
 const isExporting = ref(false);
 const exportError = ref('');
 
@@ -86,7 +100,7 @@ const submit = async () => {
         <div>
             <h2 class="text-2xl font-semibold text-slate-900">Table to CSV Generator</h2>
             <p class="text-sm text-slate-600">
-                Adjust column keys and row values before exporting.
+                Adjust column headings and cell values before exporting.
             </p>
         </div>
 
@@ -105,13 +119,20 @@ const submit = async () => {
                                     :key="column.id"
                                     class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                                 >
-                                    <input
-                                        v-model="column.label"
-                                        type="text"
-                                        placeholder="Heading"
-                                        :aria-label="`Heading for column ${columnIndex + 1}`"
-                                        class="w-full min-w-32 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                    />
+                                    <div class="flex items-center gap-2">
+                                        <input
+                                            v-model="column.label"
+                                            type="text"
+                                            placeholder="Heading"
+                                            :aria-label="`Heading for column ${columnIndex + 1}`"
+                                            class="w-full min-w-24 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        />
+                                        <RemoveButton
+                                            :label="`Remove column ${columnIndex + 1}`"
+                                            :disabled="columns.length === 1"
+                                            @click="removeColumn(columnIndex)"
+                                        />
+                                    </div>
                                 </th>
                                 <th class="sticky right-0 bg-slate-50 px-4 py-3">
                                     <span class="sr-only">Actions</span>
@@ -133,19 +154,14 @@ const submit = async () => {
                                         v-model="row.cells[column.id]"
                                         type="text"
                                         :aria-label="`Row ${rowIndex + 1}, column ${columnIndex + 1}`"
-                                        class="w-full min-w-32 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        class="w-full min-w-24 rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                                     />
                                 </td>
                                 <td class="sticky right-0 bg-white px-4 py-3 text-right">
-                                    <button
-                                        type="button"
-                                        class="inline-flex size-9 items-center justify-center rounded-md bg-red-600 text-lg leading-none font-semibold text-white shadow-sm hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:ring-offset-2"
-                                        :aria-label="`Remove row ${rowIndex + 1}`"
-                                        :title="`Remove row ${rowIndex + 1}`"
+                                    <RemoveButton
+                                        :label="`Remove row ${rowIndex + 1}`"
                                         @click="removeRow(rowIndex)"
-                                    >
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    />
                                 </td>
                             </tr>
                         </tbody>
