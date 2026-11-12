@@ -15,7 +15,17 @@ class CSVExportRequest extends FormRequest
     {
         return [
             'headings' => ['required', 'array', 'list'],
-            'headings.*' => ['string'],
+            'headings.*' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'headings.*.required' => 'Column :position needs a heading.',
         ];
     }
 

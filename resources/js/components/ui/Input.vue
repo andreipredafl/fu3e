@@ -29,6 +29,8 @@ const errorId = `${id}-error`;
             :aria-invalid="error ? true : undefined"
             :aria-describedby="error ? errorId : undefined"
         />
-        <p v-if="error" :id="errorId" class="mt-1 text-sm text-red-600">{{ error }}</p>
+        <p v-if="error" :id="errorId" class="mt-1 text-sm font-normal tracking-normal text-red-600 normal-case">
+            {{ error }}
+        </p>
     </div>
 </template>

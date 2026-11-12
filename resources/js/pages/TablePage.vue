@@ -4,6 +4,7 @@ import axios from 'axios';
 import Button from '../components/ui/Button.vue';
 import Input from '../components/ui/Input.vue';
 import { downloadFile } from '../utils/downloadFile';
+import { readValidationError } from '../utils/validationError';
 
 interface Column {
     id: string;
@@ -28,7 +29,7 @@ const data = ref<Row[]>([
 const columns = ref<Column[]>([
     { id: 'project', label: 'project' },
     { id: 'contractor', label: 'contractor' },
-    { id: 'notes', label: 'notes' },
+    { id: 'notes', label: '' },
 ]);
 
 const addRow = () => {
@@ -71,10 +72,29 @@ const removeColumn = (columnIndex: number) => {
 
 const isExporting = ref(false);
 const exportError = ref('');
+// Validation messages for headings, keyed by column id.
+const headingErrors = ref<Record<string, string>>({});
+
+const showHeadingErrors = async (errors: Record<string, string[]>, columnIds: string[]) => {
+    columnIds.forEach((columnId, index) => {
+        const message = errors[`headings.${index}`]?.[0];
+
+        if (message) {
+            headingErrors.value[columnId] = message;
+        }
+    });
+
+    // Bring the first heading with an error into view
+    await nextTick();
+    tableScroller.value?.querySelector<HTMLInputElement>('thead input[aria-invalid="true"]')?.focus();
+};
 
 const submit = async () => {
+    const columnIds = columns.value.map((column) => column.id);
+
     isExporting.value = true;
     exportError.value = '';
+    headingErrors.value = {};
 
     try {
         const response = await axios.post(
@@ -87,8 +107,16 @@ const submit = async () => {
         );
 
         downloadFile(response.data, 'project-register.csv');
-    } catch {
-        exportError.value = 'The export failed. Please try again.';
+    } catch (error) {
+        const validation = await readValidationError(error);
+
+        if (validation) {
+            await showHeadingErrors(validation.errors, columnIds);
+        }
+
+        if (Object.keys(headingErrors.value).length === 0) {
+            exportError.value = 'The export failed. Please try again.';
+        }
     } finally {
         isExporting.value = false;
     }
@@ -117,14 +145,16 @@ const submit = async () => {
                                 <th
                                     v-for="(column, columnIndex) in columns"
                                     :key="column.id"
-                                    class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+                                    class="px-4 py-3 text-left align-top text-xs font-semibold uppercase tracking-wide text-slate-500"
                                 >
-                                    <div class="flex items-center gap-1">
+                                    <div class="flex items-start gap-1">
                                         <Input
                                             v-model="column.label"
                                             placeholder="Heading"
                                             :aria-label="`Heading for column ${columnIndex + 1}`"
+                                            :error="headingErrors[column.id]"
                                             class="min-w-24"
+                                            @update:model-value="delete headingErrors[column.id]"
                                         />
                                         <Button
                                             variant="danger"

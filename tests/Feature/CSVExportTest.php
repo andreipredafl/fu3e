@@ -77,17 +77,32 @@ class CSVExportTest extends TestCase
         $this->assertCsv($response, ['project,contractor']);
     }
 
-    public function test_it_allows_empty_and_duplicate_headings(): void
+    public function test_it_allows_duplicate_headings(): void
     {
         $response = $this->export(
-            ['notes', '', 'notes'],
-            [['one', 'two', 'three']],
+            ['notes', 'notes'],
+            [['one', 'two']],
         );
 
         $this->assertCsv($response, [
-            'notes,,notes',
-            'one,two,three',
+            'notes,notes',
+            'one,two',
         ]);
+    }
+
+    public function test_it_rejects_a_column_without_a_heading(): void
+    {
+        $response = $this->export(
+            ['project', '', '   '],
+            [['Riverside', 'North & Co', 'Phase 1']],
+        );
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'headings.1' => 'Column 2 needs a heading.',
+                'headings.2' => 'Column 3 needs a heading.',
+            ])
+            ->assertJsonMissingValidationErrors('headings.0');
     }
 
     public function test_it_rejects_a_table_without_headings(): void
