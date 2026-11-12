@@ -46,8 +46,10 @@ const updateColumnKey = (column: Column, event: Event) => {
 };
 
 const submit = () => {
-    console.log('Submitting data:', data.value);
-    return axios.patch('/api/csv-export', data.value);
+    return axios.patch('/api/csv-export', {
+        headings: columns.value.map((column) => column.key),
+        rows: data.value.map((row) => columns.value.map((column) => row[column.id] ?? '')),
+    });
 };
 </script>
 
